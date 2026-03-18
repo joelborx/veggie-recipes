@@ -7,10 +7,12 @@ const User = require('./User');
 const Recipe = require('./Recipe');
 const SwipeAction = require('./SwipeAction');
 const EatenMeal = require('./EatenMeal');
+const SharedRecipe = require('./SharedRecipe');
 
 module.exports = {
   User,
   Recipe,
   SwipeAction,
-  EatenMeal
+  EatenMeal,
+  SharedRecipe
 };

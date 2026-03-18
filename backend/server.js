@@ -13,11 +13,13 @@ require('dotenv').config();
 // Import routes
 const authRoutes = require('./routes/auth-routes');
 const recipeRoutes = require('./routes/recipes');
+const ratingsRoutes = require('./routes/ratings-routes');
 const swipeRoutes = require('./routes/swipes');
 const mealRoutes = require('./routes/meals');
 const likedRoutes = require('./routes/liked-routes');
 const profileRoutes = require('./routes/profile-routes');
 const shoppingRoutes = require('./routes/shopping-routes');
+const { recipeSharingRouter, publicSharingRouter } = require('./routes/sharing-routes');
 
 // Initialize Express app
 const app = express();
@@ -49,6 +51,7 @@ app.get('/api/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/recipes', recipeRoutes);
+app.use('/api/recipes', ratingsRoutes); // Mount ratings routes under /api/recipes for rating/review endpoints
 app.use('/api/swipes', swipeRoutes);
 app.use('/api/meals', mealRoutes);
 app.use('/api/liked', likedRoutes);
@@ -98,6 +101,13 @@ const connectDB = async () => {
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled Rejection:', err);
   process.exit(1);
+});
+
+// Connect to database and start server
+connectDB();
+
+module.exports = app;
+(1);
 });
 
 // Connect to database and start server

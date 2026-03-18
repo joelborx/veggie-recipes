@@ -88,7 +88,13 @@ const recipeSchema = new mongoose.Schema({
     min: 1,
     default: 2
   },
-  ratings: {
+  ratings: [{
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    rating: { type: Number, required: true, min: 1, max: 5 },
+    review: { type: String, trim: true, maxlength: 2000 },
+    date: { type: Date, default: Date.now }
+  }],
+  ratingStats: {
     average: { type: Number, default: 0, min: 0, max: 5 },
     count: { type: Number, default: 0, min: 0 }
   },
@@ -116,7 +122,7 @@ recipeSchema.index({ 'dietaryInfo.isVegan': 1 });
 recipeSchema.index({ 'dietaryInfo.isGlutenFree': 1 });
 recipeSchema.index({ difficulty: 1 });
 recipeSchema.index({ 'time.total': 1 });
-recipeSchema.index({ 'ratings.average': -1 });
+recipeSchema.index({ 'ratingStats.average': -1 });
 
 // Calculate total time before saving
 recipeSchema.pre('save', function(next) {
@@ -129,7 +135,7 @@ recipeSchema.virtual('popularityScore').get(function() {
   const totalSwipes = this.swipeStats.likes + this.swipeStats.dislikes + this.swipeStats.superLikes;
   if (totalSwipes === 0) return 0;
   const engagementRate = (this.swipeStats.likes + this.swipeStats.superLikes * 2) / totalSwipes;
-  return (this.ratings.average * 0.3) + (engagementRate * 0.7);
+  return (this.ratingStats.average * 0.3) + (engagementRate * 0.7);
 });
 
 module.exports = mongoose.model('Recipe', recipeSchema);

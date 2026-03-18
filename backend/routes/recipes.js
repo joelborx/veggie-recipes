@@ -86,7 +86,7 @@ router.get('/', optionalAuth, async (req, res) => {
     // Execute query with pagination
     const [recipes, total] = await Promise.all([
       Recipe.find(query)
-        .sort({ 'ratings.average': -1, createdAt: -1 })
+        .sort({ 'ratingStats.average': -1, createdAt: -1 })
         .skip(skip)
         .limit(limitNum)
         .lean(),
@@ -171,7 +171,7 @@ router.get('/recommendations', verifyToken, async (req, res) => {
         ...query,
         tags: { $in: preferredTags }
       })
-        .sort({ 'ratings.average': -1, 'swipeStats.likes': -1 })
+        .sort({ 'ratingStats.average': -1, 'swipeStats.likes': -1 })
         .limit(limitNum)
         .lean();
     }
@@ -183,7 +183,7 @@ router.get('/recommendations', verifyToken, async (req, res) => {
         ...query,
         _id: { $nin: [...likedRecipeIds, ...existingIds] }
       })
-        .sort({ 'ratings.average': -1, 'swipeStats.likes': -1 })
+        .sort({ 'ratingStats.average': -1, 'swipeStats.likes': -1 })
         .limit(limitNum - recipes.length)
         .lean();
       
