@@ -1,0 +1,34 @@
+# Dependencies
+backend/node_modules/
+frontend/node_modules/
+package-lock.json
+yarn.lock
+
+# Environment variables
+backend/.env
+frontend/.env
+
+# Build outputs
+frontend/dist/
+frontend/build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# MongoDB data (Docker)
+data/db/
+
+# Testing
+coverage/
+.nyc_output/
