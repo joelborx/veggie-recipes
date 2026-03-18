@@ -179,7 +179,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://harvard-end-tank-studies.trycloudflare.com/api';
+        const API_URL = 'https://intervals-others-interviews-except.trycloudflare.com/api';
         let recipes = [];
         let currentIndex = 0;
 
@@ -228,12 +228,27 @@
                 tagsContainer.appendChild(tagEl);
             });
             
-            // Bild setzen
+            // Bild setzen mit Fallback
             const imgContainer = document.getElementById('recipeImage');
-            if (recipe.images && recipe.images[0]) {
-                imgContainer.style.backgroundImage = `url(${recipe.images[0].url})`;
-                imgContainer.style.backgroundSize = 'cover';
-                imgContainer.style.backgroundPosition = 'center';
+            imgContainer.style.backgroundSize = 'cover';
+            imgContainer.style.backgroundPosition = 'center';
+            
+            if (recipe.images && recipe.images[0] && recipe.images[0].url) {
+                // Versuche das Bild zu laden
+                const img = new Image();
+                img.onload = function() {
+                    imgContainer.style.backgroundImage = `url(${recipe.images[0].url})`;
+                };
+                img.onerror = function() {
+                    // Fallback zu Emoji/Gradient wenn Bild nicht lädt
+                    imgContainer.style.backgroundImage = 'linear-gradient(45deg, #f093fb 0%, #f5576c 100%)';
+                    imgContainer.innerHTML = '<div style="font-size: 80px; text-align: center; padding-top: 40%;">🍽️</div>';
+                };
+                img.src = recipe.images[0].url;
+            } else {
+                // Kein Bild vorhanden - zeige Platzhalter
+                imgContainer.style.backgroundImage = 'linear-gradient(45deg, #f093fb 0%, #f5576c 100%)';
+                imgContainer.innerHTML = '<div style="font-size: 80px; text-align: center; padding-top: 40%;">🍽️</div>';
             }
         }
 

@@ -22,6 +22,8 @@ const profileRoutes = require('./routes/profile-routes');
 const shoppingRoutes = require('./routes/shopping-routes');
 const { recipeSharingRouter, publicSharingRouter } = require('./routes/sharing-routes');
 const adminRoutes = require('./routes/admin-routes');
+const mealplanRoutes = require('./routes/mealplan-routes');
+const nutritionRoutes = require('./routes/nutrition-routes');
 
 // Initialize Express app
 const app = express();
@@ -61,6 +63,8 @@ app.use('/api/liked', likedRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/shopping', shoppingRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/mealplan', mealplanRoutes);
+app.use('/api/nutrition', nutritionRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -105,13 +109,6 @@ const connectDB = async () => {
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled Rejection:', err);
   process.exit(1);
-});
-
-// Connect to database and start server
-connectDB();
-
-module.exports = app;
-(1);
 });
 
 // Connect to database and start server

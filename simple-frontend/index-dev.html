@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veggie Recipes - Dev Version</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { opacity: 0.9; }
+        
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .nav button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .nav button:hover, .nav button.active {
+            background: white;
+            color: #764ba2;
+        }
+        
+        /* Content Views */
+        .view {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+        }
+        .view.active { display: block; }
+        
+        /* Swipe View */
+        .card-container {
+            height: 600px;
+            position: relative;
+            margin: 20px auto;
+        }
+        .recipe-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+        .recipe-image {
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+        }
+        .recipe-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .recipe-content {
+            padding: 20px;
+            height: 40%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .recipe-title { font-size: 1.5em; font-weight: bold; margin-bottom: 10px; }
+        .recipe-desc { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+        .tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+        .tag { background: #f0f0f0; padding: 3px 10px; border-radius: 15px; font-size: 0.8em; }
+        .recipe-meta { display: flex; gap: 10px; font-size: 0.9em; }
+        .nutrition-badge { background: #e8f5e9; color: #2e7d32; padding: 5px 10px; border-radius: 15px; }
+        .time-badge { background: #fff3e0; color: #e65100; padding: 5px 10px; border-radius: 15px; }
+        
+        .swipe-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .swipe-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .swipe-btn:hover { transform: scale(1.1); }
+        .dislike { background: #ff4757; color: white; }
+        .superlike { background: #ffa502; color: white; }
+        .like { background: #2ed573; color: white; }
+        
+        /* Liked View */
+        .liked-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            padding: 10px;
+        }
+        .liked-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .liked-image {
+            height: 120px;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+        }
+        .liked-info {
+            padding: 15px;
+        }
+        .liked-title { font-weight: bold; font-size: 1em; margin-bottom: 5px; }
+        .liked-meta { font-size: 0.8em; color: #666; }
+        
+        /* Search View */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+        }
+        .search-box button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            background: white;
+            color: #764ba2;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .filter-chips {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .filter-chip {
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .filter-chip.active { background: white; color: #764ba2; }
+        
+        /* Loading/Error */
+        .loading, .error {
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🥗 Veggie Recipes</h1>
+        <p>Swipe durch leckere vegetarische Rezepte</p>
+    </div>
+    
+    <div class="nav">
+        <button class="active" onclick="showView('swipe')">🔥 Swipe</button>
+        <button onclick="showView('liked')">❤️ Favoriten</button>
+        <button onclick="showView('search')">🔍 Suche</button>
+        <button onclick="showView('profile')">👤 Profil</button>
+    </div>
+    
+    <!-- SWIPE VIEW -->
+    <div id="swipe-view" class="view active">
+        <div id="loading" class="loading">Lade Rezepte...</div>
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <div class="card-container" id="cardContainer" style="display: none;">
+            <div class="recipe-card" id="recipeCard">
+                <div class="recipe-image" id="recipeImage">🍽️</div>
+                <div class="recipe-content">
+                    <div>
+                        <div class="recipe-title" id="recipeTitle"></div>
+                        <div class="recipe-desc" id="recipeDesc"></div>
+                        <div class="tags" id="recipeTags"></div>
+                    </div>
+                    <div class="recipe-meta">
+                        <span class="nutrition-badge" id="recipeCalories"></span>
+                        <span class="time-badge" id="recipeTime"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="swipe-buttons" id="swipeButtons" style="display: none;">
+            <button class="swipe-btn dislike" onclick="swipe('dislike')">✕</button>
+            <button class="swipe-btn superlike" onclick="swipe('superlike')">⭐</button>
+            <button class="swipe-btn like" onclick="swipe('like')">♥</button>
+        </div>
+    </div>
+    
+    <!-- LIKED VIEW -->
+    <div id="liked-view" class="view">
+        <div id="liked-loading" class="loading">Lade Favoriten...</div>
+        <div id="liked-error" class="error" style="display: none;"></div>
+        <div class="liked-grid" id="likedGrid"></div>
+    </div>
+    
+    <!-- SEARCH VIEW -->
+    <div id="search-view" class="view">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Rezepte suchen..." onkeypress="if(event.key==='Enter') searchRecipes()">
+            <button onclick="searchRecipes()">Suchen</button>
+        </div>
+        <div class="filter-chips">
+            <button class="filter-chip active" onclick="filterBy('all')">Alle</button>
+            <button class="filter-chip" onclick="filterBy('italian')">🇮🇹 Italienisch</button>
+            <button class="filter-chip" onclick="filterBy('asian')">🥢 Asiatisch</button>
+            <button class="filter-chip" onclick="filterBy('quick')">⚡ Unter 30min</button>
+        </div>
+        <div id="search-results" class="liked-grid"></div>
+    </div>
+    
+    <!-- PROFILE VIEW -->
+    <div id="profile-view" class="view">
+        <div style="background: white; border-radius: 20px; padding: 30px; text-align: center;">
+            <div style="font-size: 80px; margin-bottom: 20px;">👤</div>
+            <h2 style="margin-bottom: 20px;">Mein Profil</h2>
+            <p style="color: #666; margin-bottom: 30px;">Hier kommen Profil-Einstellungen und Statistiken</p>
+            <button style="padding: 15px 40px; border: none; border-radius: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 16px; cursor: pointer;">
+                Einstellungen öffnen
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://intervals-others-interviews-except.trycloudflare.com/api';
+        let recipes = [];
+        let currentIndex = 0;
+        let likedRecipes = [];
+
+        // Navigation
+        function showView(viewName) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(viewName + '-view').classList.add('active');
+            event.target.classList.add('active');
+            
+            if (viewName === 'liked') loadLikedRecipes();
+            if (viewName === 'swipe') loadRecipes();
+        }
+
+        // Swipe View
+        async function loadRecipes() {
+            try {
+                const response = await fetch(`${API_URL}/recipes`);
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.recipes) {
+                    recipes = data.data.recipes;
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('cardContainer').style.display = 'block';
+                    document.getElementById('swipeButtons').style.display = 'flex';
+                    showRecipe();
+                } else {
+                    throw new Error('Ungültige API-Antwort');
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = 'Fehler beim Laden: ' + error.message;
+            }
+        }
+
+        function showRecipe() {
+            if (currentIndex >= recipes.length) {
+                currentIndex = 0;
+            }
+            
+            const recipe = recipes[currentIndex];
+            document.getElementById('recipeTitle').textContent = recipe.title;
+            document.getElementById('recipeDesc').textContent = recipe.description;
+            document.getElementById('recipeCalories').textContent = `${recipe.nutrition?.calories || 0} kcal`;
+            document.getElementById('recipeTime').textContent = `⏱️ ${recipe.time?.total || 0} min`;
+            
+            const tagsContainer = document.getElementById('recipeTags');
+            tagsContainer.innerHTML = '';
+            (recipe.tags || []).slice(0, 3).forEach(tag => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'tag';
+                tagEl.textContent = tag;
+                tagsContainer.appendChild(tagEl);
+            });
+            
+            const imgContainer = document.getElementById('recipeImage');
+            if (recipe.images && recipe.images[0] && recipe.images[0].url) {
+                imgContainer.innerHTML = '';
+                imgContainer.style.backgroundImage = `url(${recipe.images[0].url})`;
+                imgContainer.style.backgroundSize = 'cover';
+            } else {
+                imgContainer.style.backgroundImage = 'linear-gradient(45deg, #f093fb 0%, #f5576c 100%)';
+                imgContainer.innerHTML = '🍽️';
+            }
+        }
+
+        async function swipe(action) {
+            const card = document.getElementById('recipeCard');
+            const recipe = recipes[currentIndex];
+            
+            if (action === 'like' || action === 'superlike') {
+                card.style.transform = action === 'like' ? 'translateX(100px) rotate(10deg)' : 'translateY(-50px) scale(1.1)';
+                // Speichere Like im Backend
+                await saveLike(recipe._id);
+            } else if (action === 'dislike') {
+                card.style.transform = 'translateX(-100px) rotate(-10deg)';
+            }
+            
+            setTimeout(() => {
+                card.style.transform = '';
+                currentIndex++;
+                showRecipe();
+            }, 300);
+        }
+        
+        async function saveLike(recipeId) {
+            try {
+                await fetch(`${API_URL}/liked/${recipeId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } catch (e) {
+                console.log('Like saved locally (no auth yet)');
+            }
+        }
+
+        // Liked View - Lade vom Backend
+        async function loadLikedRecipes() {
+            const grid = document.getElementById('likedGrid');
+            const loading = document.getElementById('liked-loading');
+            
+            loading.textContent = 'Lade Favoriten...';
+            
+            try {
+                // Versuche vom Backend zu laden
+                const response = await fetch(`${API_URL}/liked`);
+                const data = await response.json();
+                
+                if (data.success && data.recipes && data.recipes.length > 0) {
+                    loading.style.display = 'none';
+                    grid.innerHTML = '';
+                    
+                    data.recipes.forEach(recipe => {
+                        const card = document.createElement('div');
+                        card.className = 'liked-card';
+                        card.innerHTML = `
+                            <div class="liked-image">🍽️</div>
+                            <div class="liked-info">
+                                <div class="liked-title">${recipe.title}</div>
+                                <div class="liked-meta">${recipe.nutrition?.calories || 0} kcal • ${recipe.time?.total || 0} min</div>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                } else {
+                    // Zeige lokale Favoriten falls Backend leer
+                    if (likedRecipes.length > 0) {
+                        loading.style.display = 'none';
+                        grid.innerHTML = '';
+                        likedRecipes.forEach(recipe => {
+                            const card = document.createElement('div');
+                            card.className = 'liked-card';
+                            card.innerHTML = `
+                                <div class="liked-image">🍽️</div>
+                                <div class="liked-info">
+                                    <div class="liked-title">${recipe.title}</div>
+                                    <div class="liked-meta">${recipe.nutrition?.calories || 0} kcal • ${recipe.time?.total || 0} min</div>
+                                </div>
+                            `;
+                            grid.appendChild(card);
+                        });
+                    } else {
+                        loading.textContent = 'Noch keine Favoriten. Swipe dich durch die Rezepte! ♥️';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading liked:', error);
+                loading.textContent = 'Fehler beim Laden der Favoriten. Lokale Favoriten:';
+                
+                // Fallback: Zeige lokale Favoriten
+                if (likedRecipes.length > 0) {
+                    loading.style.display = 'none';
+                    grid.innerHTML = '';
+                    likedRecipes.forEach(recipe => {
+                        const card = document.createElement('div');
+                        card.className = 'liked-card';
+                        card.innerHTML = `
+                            <div class="liked-image">🍽️</div>
+                            <div class="liked-info">
+                                <div class="liked-title">${recipe.title}</div>
+                                <div class="liked-meta">${recipe.nutrition?.calories || 0} kcal • ${recipe.time?.total || 0} min</div>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                }
+            }
+        }
+
+        // Search
+        async function searchRecipes() {
+            const query = document.getElementById('searchInput').value;
+            const results = document.getElementById('search-results');
+            
+            if (!query.trim()) {
+                results.innerHTML = '<div class="loading">Bitte Suchbegriff eingeben</div>';
+                return;
+            }
+            
+            results.innerHTML = '<div class="loading">Suche...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/recipes/search?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                results.innerHTML = '';
+                if (data.success && data.recipes && data.recipes.length > 0) {
+                    data.recipes.forEach(recipe => {
+                        const card = document.createElement('div');
+                        card.className = 'liked-card';
+                        card.innerHTML = `
+                            <div class="liked-image">🍽️</div>
+                            <div class="liked-info">
+                                <div class="liked-title">${recipe.title}</div>
+                                <div class="liked-meta">${recipe.nutrition?.calories || 0} kcal • ${recipe.time?.total || 0} min</div>
+                            </div>
+                        `;
+                        results.appendChild(card);
+                    });
+                } else {
+                    results.innerHTML = '<div class="loading">Keine Rezepte gefunden</div>';
+                }
+            } catch (e) {
+                console.error('Search error:', e);
+                results.innerHTML = '<div class="loading">Suche fehlgeschlagen. Versuche Filter...</div>';
+                
+                // Fallback: Zeige alle Rezepte
+                if (recipes.length > 0) {
+                    const filtered = recipes.filter(r => 
+                        r.title.toLowerCase().includes(query.toLowerCase()) ||
+                        r.tags.some(t => t.toLowerCase().includes(query.toLowerCase()))
+                    );
+                    
+                    if (filtered.length > 0) {
+                        results.innerHTML = '';
+                        filtered.forEach(recipe => {
+                            const card = document.createElement('div');
+                            card.className = 'liked-card';
+                            card.innerHTML = `
+                                <div class="liked-image">🍽️</div>
+                                <div class="liked-info">
+                                    <div class="liked-title">${recipe.title}</div>
+                                    <div class="liked-meta">${recipe.nutrition?.calories || 0} kcal</div>
+                                </div>
+                            `;
+                            results.appendChild(card);
+                        });
+                    }
+                }
+            }
+        }
+
+        function filterBy(type) {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const results = document.getElementById('search-results');
+            
+            if (type === 'all') {
+                // Zeige alle Rezepte
+                results.innerHTML = '';
+                recipes.forEach(recipe => {
+                    const card = document.createElement('div');
+                    card.className = 'liked-card';
+                    card.innerHTML = `
+                        <div class="liked-image">🍽️</div>
+                        <div class="liked-info">
+                            <div class="liked-title">${recipe.title}</div>
+                            <div class="liked-meta">${recipe.nutrition?.calories || 0} kcal</div>
+                        </div>
+                    `;
+                    results.appendChild(card);
+                });
+            } else {
+                // Filter nach Typ
+                const filtered = recipes.filter(r => 
+                    r.tags.includes(type) || 
+                    (type === 'quick' && r.time?.total <= 30)
+                );
+                
+                results.innerHTML = '';
+                if (filtered.length > 0) {
+                    filtered.forEach(recipe => {
+                        const card = document.createElement('div');
+                        card.className = 'liked-card';
+                        card.innerHTML = `
+                            <div class="liked-image">🍽️</div>
+                            <div class="liked-info">
+                                <div class="liked-title">${recipe.title}</div>
+                                <div class="liked-meta">${recipe.nutrition?.calories || 0} kcal</div>
+                            </div>
+                        `;
+                        results.appendChild(card);
+                    });
+                } else {
+                    results.innerHTML = '<div class="loading">Keine Rezepte in dieser Kategorie</div>';
+                }
+            }
+        }
+
+        // Init
+        loadRecipes();
+    </script>
+</body>
+</html>
