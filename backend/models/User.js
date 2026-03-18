@@ -71,6 +71,21 @@ const userSchema = new mongoose.Schema({
   likedRecipes: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Recipe'
+  }],
+  shoppingList: [{
+    recipe: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Recipe'
+    },
+    servings: { type: Number, default: 1 },
+    ingredients: [{
+      name: String,
+      amount: Number,
+      unit: String,
+      category: { type: String, default: 'other' },
+      checked: { type: Boolean, default: false }
+    }],
+    addedAt: { type: Date, default: Date.now }
   }]
 }, {
   timestamps: true // Adds createdAt and updatedAt automatically
