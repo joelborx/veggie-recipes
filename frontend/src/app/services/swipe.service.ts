@@ -20,7 +20,7 @@ export interface SwipeRequest {
   providedIn: 'root'
 })
 export class SwipeService {
-  private apiUrl = 'http://localhost:5000/api';
+  private apiUrl = 'https://sara-hip-moral-lobby.trycloudflare.com/api';
 
   constructor(private http: HttpClient) {}
 

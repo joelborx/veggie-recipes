@@ -40,7 +40,7 @@ export interface MealStats {
   providedIn: 'root'
 })
 export class MealService {
-  private apiUrl = 'http://localhost:5000/api';
+  private apiUrl = 'https://sara-hip-moral-lobby.trycloudflare.com/api';
 
   constructor(private http: HttpClient) {}
 

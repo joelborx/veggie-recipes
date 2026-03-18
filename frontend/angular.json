@@ -60,6 +60,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": ["art-dans-prerequisite-shades.trycloudflare.com", "posting-dictionary-syndication-management.trycloudflare.com", "wheels-freedom-doug-rack.trycloudflare.com", "localhost"]
+          },
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"

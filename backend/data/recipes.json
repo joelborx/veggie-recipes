@@ -1,0 +1,30 @@
+[
+  {
+    "_id": "69ba4621b104334cc8223316",
+    "title": "Paneer Tikka Masala",
+    "description": "Grilled marinated paneer cubes in a rich, creamy tomato gravy. Restaurant-style indulgence made at home.",
+    "images": [{"url": "https://images.unsplash.com/photo-1567188040759-fb8a883dc6eb?w=800", "alt": "Paneer Tikka Masala", "isPrimary": true}],
+    "ingredients": [{"name": "paneer", "amount": "400g"}, {"name": "yogurt", "amount": "1/2 cup"}],
+    "instructions": [{"step": 1, "description": "Marinate paneer", "duration": 30}],
+    "nutrition": {"calories": 485, "protein": 22, "carbohydrates": 0, "fat": 36, "fiber": 4, "sugar": 10, "sodium": 620, "servingSize": "1 cup"},
+    "tags": ["dinner", "indian", "curry"],
+    "dietaryInfo": {"isVegan": false, "isGlutenFree": true, "isDairyFree": false, "isNutFree": false, "spiceLevel": "medium"},
+    "time": {"prep": 45, "cook": 45, "total": 90},
+    "difficulty": "medium",
+    "servings": 4
+  },
+  {
+    "_id": "69ba4621b104334cc82232f6",
+    "title": "Quick Tadka Dal",
+    "description": "Yellow lentils tempered with mustard seeds, curry leaves, and garlic. The ultimate quick comfort food.",
+    "images": [{"url": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800", "alt": "Tadka Dal", "isPrimary": true}],
+    "ingredients": [{"name": "toor dal", "amount": "1 cup"}, {"name": "turmeric", "amount": "1/2 tsp"}],
+    "instructions": [{"step": 1, "description": "Pressure cook dal", "duration": 20}],
+    "nutrition": {"calories": 195, "protein": 11, "carbohydrates": 0, "fat": 4, "fiber": 7, "sugar": 3, "sodium": 260, "servingSize": "1 cup"},
+    "tags": ["dinner", "indian", "quick"],
+    "dietaryInfo": {"isVegan": true, "isGlutenFree": true, "isDairyFree": true, "isNutFree": true, "spiceLevel": "mild"},
+    "time": {"prep": 5, "cook": 25, "total": 30},
+    "difficulty": "easy",
+    "servings": 4
+  }
+]

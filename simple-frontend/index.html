@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veggie Recipes - Swipe Interface</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { opacity: 0.9; }
+        .card-container {
+            width: 100%;
+            max-width: 400px;
+            height: 600px;
+            position: relative;
+            margin: 20px auto;
+        }
+        .recipe-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+        .recipe-image {
+            width: 100%;
+            height: 60%;
+            object-fit: cover;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+        }
+        .recipe-content {
+            padding: 20px;
+            height: 40%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .recipe-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .recipe-desc {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+        .recipe-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        .nutrition-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .time-badge {
+            color: #999;
+            font-size: 0.85em;
+        }
+        .swipe-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .swipe-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        .swipe-btn:hover { transform: scale(1.1); }
+        .swipe-btn.dislike {
+            background: #ff4757;
+            color: white;
+        }
+        .swipe-btn.like {
+            background: #2ed573;
+            color: white;
+        }
+        .swipe-btn.superlike {
+            background: #3742fa;
+            color: white;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5em;
+            align-self: center;
+        }
+        .loading {
+            color: white;
+            font-size: 1.2em;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .error {
+            color: #ff4757;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .tag {
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🥗 Veggie Recipes</h1>
+        <p>Swipe durch leckere vegetarische Rezepte</p>
+    </div>
+    
+    <div id="loading" class="loading">Lade Rezepte...</div>
+    <div id="error" class="error" style="display: none;"></div>
+    
+    <div class="card-container" id="cardContainer" style="display: none;">
+        <div class="recipe-card" id="recipeCard">
+            <div class="recipe-image" id="recipeImage"></div>
+            <div class="recipe-content">
+                <div>
+                    <div class="recipe-title" id="recipeTitle"></div>
+                    <div class="recipe-desc" id="recipeDesc"></div>
+                    <div class="tags" id="recipeTags"></div>
+                </div>
+                <div class="recipe-meta">
+                    <span class="nutrition-badge" id="recipeCalories"></span>
+                    <span class="time-badge" id="recipeTime"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="swipe-buttons" id="swipeButtons" style="display: none;">
+        <button class="swipe-btn dislike" onclick="swipe('dislike')">✕</button>
+        <button class="swipe-btn superlike" onclick="swipe('superlike')">⭐</button>
+        <button class="swipe-btn like" onclick="swipe('like')">♥</button>
+    </div>
+
+    <script>
+        const API_URL = 'https://harvard-end-tank-studies.trycloudflare.com/api';
+        let recipes = [];
+        let currentIndex = 0;
+
+        async function loadRecipes() {
+            try {
+                const response = await fetch(`${API_URL}/recipes`);
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.recipes) {
+                    recipes = data.data.recipes;
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('cardContainer').style.display = 'block';
+                    document.getElementById('swipeButtons').style.display = 'flex';
+                    showRecipe();
+                } else {
+                    throw new Error('Ungültige API-Antwort');
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = 
+                    'Fehler beim Laden der Rezepte: ' + error.message;
+            }
+        }
+
+        function showRecipe() {
+            if (currentIndex >= recipes.length) {
+                currentIndex = 0; // Loop zurück zum Anfang
+            }
+            
+            const recipe = recipes[currentIndex];
+            document.getElementById('recipeTitle').textContent = recipe.title;
+            document.getElementById('recipeDesc').textContent = recipe.description;
+            document.getElementById('recipeCalories').textContent = 
+                `${recipe.nutrition.calories} kcal`;
+            document.getElementById('recipeTime').textContent = 
+                `⏱️ ${recipe.time.total} min`;
+            
+            // Tags anzeigen
+            const tagsContainer = document.getElementById('recipeTags');
+            tagsContainer.innerHTML = '';
+            recipe.tags.slice(0, 3).forEach(tag => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'tag';
+                tagEl.textContent = tag;
+                tagsContainer.appendChild(tagEl);
+            });
+            
+            // Bild setzen
+            const imgContainer = document.getElementById('recipeImage');
+            if (recipe.images && recipe.images[0]) {
+                imgContainer.style.backgroundImage = `url(${recipe.images[0].url})`;
+                imgContainer.style.backgroundSize = 'cover';
+                imgContainer.style.backgroundPosition = 'center';
+            }
+        }
+
+        function swipe(action) {
+            const card = document.getElementById('recipeCard');
+            
+            // Animation
+            if (action === 'like') {
+                card.style.transform = 'translateX(100px) rotate(10deg)';
+            } else if (action === 'dislike') {
+                card.style.transform = 'translateX(-100px) rotate(-10deg)';
+            } else {
+                card.style.transform = 'translateY(-50px) scale(1.1)';
+            }
+            
+            // API-Aufruf für Swipe (optional)
+            console.log(`Swiped ${action} on:`, recipes[currentIndex].title);
+            
+            // Nächstes Rezept nach Animation
+            setTimeout(() => {
+                card.style.transform = '';
+                currentIndex++;
+                showRecipe();
+            }, 300);
+        }
+
+        // Rezepte laden beim Start
+        loadRecipes();
+    </script>
+</body>
+</html>

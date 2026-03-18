@@ -11,7 +11,7 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 // Import routes
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/auth-routes');
 const recipeRoutes = require('./routes/recipes');
 const swipeRoutes = require('./routes/swipes');
 const mealRoutes = require('./routes/meals');
@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 5000;
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: '*',
   credentials: true
 }));
 

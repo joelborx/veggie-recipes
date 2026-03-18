@@ -39,7 +39,7 @@ export interface RecipeFilter {
   providedIn: 'root'
 })
 export class RecipeService {
-  private apiUrl = 'http://localhost:5000/api';
+  private apiUrl = 'https://sara-hip-moral-lobby.trycloudflare.com/api';
 
   constructor(private http: HttpClient) {}
 
