@@ -124,6 +124,20 @@ recipeSchema.index({ difficulty: 1 });
 recipeSchema.index({ 'time.total': 1 });
 recipeSchema.index({ 'ratingStats.average': -1 });
 
+// Text index for full-text search on title, description, and ingredients
+recipeSchema.index({
+  title: 'text',
+  description: 'text',
+  'ingredients.name': 'text'
+}, {
+  weights: {
+    title: 10,      // Title matches are most important
+    'ingredients.name': 5,  // Ingredient matches are moderately important
+    description: 3   // Description matches are less important
+  },
+  name: 'recipe_text_index'
+});
+
 // Calculate total time before saving
 recipeSchema.pre('save', function(next) {
   this.time.total = this.time.prep + this.time.cook;
