@@ -21,6 +21,7 @@ const likedRoutes = require('./routes/liked-routes');
 const profileRoutes = require('./routes/profile-routes');
 const shoppingRoutes = require('./routes/shopping-routes');
 const { recipeSharingRouter, publicSharingRouter } = require('./routes/sharing-routes');
+const adminRoutes = require('./routes/admin-routes');
 
 // Initialize Express app
 const app = express();
@@ -59,6 +60,7 @@ app.use('/api/meals', mealRoutes);
 app.use('/api/liked', likedRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/shopping', shoppingRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 handler
 app.use((req, res) => {
