@@ -15,6 +15,8 @@ const authRoutes = require('./routes/auth-routes');
 const recipeRoutes = require('./routes/recipes');
 const swipeRoutes = require('./routes/swipes');
 const mealRoutes = require('./routes/meals');
+const likedRoutes = require('./routes/liked-routes');
+const profileRoutes = require('./routes/profile-routes');
 
 // Initialize Express app
 const app = express();
@@ -48,6 +50,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/recipes', recipeRoutes);
 app.use('/api/swipes', swipeRoutes);
 app.use('/api/meals', mealRoutes);
+app.use('/api/liked', likedRoutes);
+app.use('/api/profile', profileRoutes);
 
 // 404 handler
 app.use((req, res) => {

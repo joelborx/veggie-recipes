@@ -67,7 +67,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
-  }
+  },
+  likedRecipes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Recipe'
+  }]
 }, {
   timestamps: true // Adds createdAt and updatedAt automatically
 });
