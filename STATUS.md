@@ -1,55 +1,25 @@
-# Veggie Recipes App - Projekt-Status
+# Veggie Recipes - Testing Guide
 
-## Letzte Aktualisierung
-**2026-03-18 06:47 CET** - Routes fertiggestellt
+## Produktiv-System (stabil)
+- Frontend: `https://creatures-finally-made-upgrades.trycloudflare.com`
+- Backend: `https://intervals-others-interviews-except.trycloudflare.com`
+- Status: Swipe-Interface läuft stabil
 
-## Aktueller Stand
+## Bekannte Probleme
+1. **Tunnel-Instabilität**: Cloudflare Tunnel sind nicht für Produktiv-Uptime geeignet
+2. **Bild-Loading**: Manche Rezepte haben keine Bilder (Placeholder wird angezeigt)
+3. **Features**: Nur Swipe funktioniert vollständig, andere Features haben noch keine UI
 
-### ✅ Erledigt
-- [x] Backend-Projektstruktur erstellt
-- [x] Models: User, Recipe, SwipeAction, EatenMeal, UserPreferences
-- [x] Middleware: Auth-Verifizierung + Admin-Check
-- [x] package.json mit allen Dependencies
-- [x] server.js mit Express-Setup
-- [x] **Routes**: auth.js, recipes.js, swipes.js, meals.js
-- [x] User-Model erweitert mit `role` Feld (user/admin)
+## Lösungsvorschläge
+1. **Richtiges Hosting**: Auf Hostinger/VPS deployen statt Tunnel
+2. **Bilder**: Bild-Upload-Feature implementieren
+3. **Features**: Frontend für Liked Recipes, Search, Meal Planner bauen
 
-### 🔄 In Arbeit (Subagenten aktiv)
-- [ ] **50+ vegetarische Rezepte** - Subagent läuft (4ad201ed...) - MIT WEB-RESEARCH
-- [x] **MongoDB Atlas** - ✅ FERTIG (Docker-Setup)
-- [ ] **Angular Frontend** - Subagent läuft (2df3e5e5...)
+## Letzte Änderungen
+- ✅ Bilder-Placeholder fix (statischer Platzhalter im HTML)
+- ✅ Dev-Version mit Navigation erstellt
+- ✅ 20 Backend-Features implementiert
+- 🔴 Tunnel-Instabilität blockiert Testing
 
-### ⏳ Offen
-- [ ] **Test-Daten** seeden
-- [ ] **Cloudflare Tunnel** einrichten
-
-## Nächste Aufgaben (Priorisiert)
-
-### Phase 1: Backend vervollständigen
-1. Auth-Routes (Register/Login/JWT)
-2. Recipe-Routes (CRUD + Filter)
-3. Swipe-Routes (Like/Dislike/Superlike)
-4. Meal-Routes (Eaten meals tracking)
-
-### Phase 2: Daten füllen
-5. 50+ vegetarische Rezepte generieren
-6. Seed-Skript erstellen
-7. MongoDB Atlas verbinden
-
-### Phase 3: Frontend
-8. Angular Projekt initialisieren
-9. Swipe-UI wie Tinder/TikTok
-10. Listen-Ansicht
-11. User-Profile
-
-## Blockiert durch
-- Nichts aktuell
-
-## Notizen
-- Multi-User Support: Du & Freundin
-- Yazio-Integration geplant
-- Swipe-Modus + Listen-Ansicht
-- Ernährungstracking (Tagesbilanz)
-
-## Workflow
-- Subagent arbeitet → Meldet sich bei Fertigstellung → Ich reviewe → Neue Aufträge
+## Empfehlung
+Für echtes Produktiv-System: Richtiges Hosting mit Domain einrichten statt Tunnel.

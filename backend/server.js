@@ -52,11 +52,11 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// API Routes
+// API Routes - ORDER MATTERS: More specific routes first!
 app.use('/api/auth', authRoutes);
-app.use('/api/recipes', recipeRoutes);
-app.use('/api/recipes', searchRoutes); // Mount search routes under /api/recipes
-app.use('/api/recipes', ratingsRoutes); // Mount ratings routes under /api/recipes for rating/review endpoints
+app.use('/api/recipes', searchRoutes); // Search FIRST (before /:id)
+app.use('/api/recipes', ratingsRoutes); // Ratings SECOND
+app.use('/api/recipes', recipeRoutes); // Generic recipe routes LAST (contains /:id)
 app.use('/api/swipes', swipeRoutes);
 app.use('/api/meals', mealRoutes);
 app.use('/api/liked', likedRoutes);

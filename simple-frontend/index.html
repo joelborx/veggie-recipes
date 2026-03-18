@@ -42,8 +42,15 @@
         .recipe-image {
             width: 100%;
             height: 60%;
-            object-fit: cover;
             background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+        .recipe-image-placeholder {
+            font-size: 80px;
+            text-align: center;
         }
         .recipe-content {
             padding: 20px;
@@ -157,7 +164,7 @@
     
     <div class="card-container" id="cardContainer" style="display: none;">
         <div class="recipe-card" id="recipeCard">
-            <div class="recipe-image" id="recipeImage"></div>
+            <div class="recipe-image" id="recipeImage"><div class="recipe-image-placeholder">&#x1F37D;</div></div>
             <div class="recipe-content">
                 <div>
                     <div class="recipe-title" id="recipeTitle"></div>
@@ -230,25 +237,29 @@
             
             // Bild setzen mit Fallback
             const imgContainer = document.getElementById('recipeImage');
-            imgContainer.style.backgroundSize = 'cover';
-            imgContainer.style.backgroundPosition = 'center';
+            imgContainer.innerHTML = ''; // Clear previous
+            imgContainer.style.backgroundImage = '';
+            imgContainer.style.backgroundSize = '';
+            imgContainer.style.backgroundPosition = '';
             
             if (recipe.images && recipe.images[0] && recipe.images[0].url) {
                 // Versuche das Bild zu laden
                 const img = new Image();
                 img.onload = function() {
                     imgContainer.style.backgroundImage = `url(${recipe.images[0].url})`;
+                    imgContainer.style.backgroundSize = 'cover';
+                    imgContainer.style.backgroundPosition = 'center';
                 };
                 img.onerror = function() {
                     // Fallback zu Emoji/Gradient wenn Bild nicht lädt
                     imgContainer.style.backgroundImage = 'linear-gradient(45deg, #f093fb 0%, #f5576c 100%)';
-                    imgContainer.innerHTML = '<div style="font-size: 80px; text-align: center; padding-top: 40%;">🍽️</div>';
+                    imgContainer.innerHTML = '<div class="recipe-image-placeholder">🍽️</div>';
                 };
                 img.src = recipe.images[0].url;
             } else {
                 // Kein Bild vorhanden - zeige Platzhalter
                 imgContainer.style.backgroundImage = 'linear-gradient(45deg, #f093fb 0%, #f5576c 100%)';
-                imgContainer.innerHTML = '<div style="font-size: 80px; text-align: center; padding-top: 40%;">🍽️</div>';
+                imgContainer.innerHTML = '<div class="recipe-image-placeholder">🍽️</div>';
             }
         }
 

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veggie Recipes - Deine vegetarische Rezept-App</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding-top: 70px;
+            padding-bottom: 100px;
+        }
+        
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.3em;
+            color: #764ba2;
+        }
+        
+        .nav-brand .logo { font-size: 1.4em; }
+        
+        .nav-links {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            color: #666;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .nav-link .icon { font-size: 1.2em; }
+        
+        /* Views */
+        .view {
+            display: none;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .view.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Swipe View */
+        .swipe-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .recipe-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+            transition: transform 0.3s ease;
+        }
+        
+        .recipe-image {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            position: relative;
+        }
+        
+        .recipe-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .recipe-placeholder {
+            opacity: 0.5;
+        }
+        
+        .recipe-content {
+            padding: 24px;
+        }
+        
+        .recipe-title {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .recipe-desc {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+        
+        .recipe-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .tag {
+            background: #f0f0f0;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #666;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            justify-content: space-around;
+            padding: 16px 0;
+            border-top: 1px solid #eee;
+        }
+        
+        .meta-item {
+            text-align: center;
+        }
+        
+        .meta-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #764ba2;
+        }
+        
+        .meta-label {
+            font-size: 0.8em;
+            color: #999;
+        }
+        
+        /* Swipe Buttons */
+        .swipe-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .swipe-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .swipe-btn:hover { transform: scale(1.1); }
+        .dislike { background: #ff4757; color: white; }
+        .superlike { background: #ffa502; color: white; }
+        .like { background: #2ed573; color: white; }
+        
+        /* Liked View */
+        .liked-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+        }
+        
+        .liked-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .liked-card:hover { transform: translateY(-5px); }
+        
+        .liked-image {
+            height: 120px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+        }
+        
+        .liked-info {
+            padding: 15px;
+        }
+        
+        .liked-title {
+            font-weight: 600;
+            font-size: 0.95em;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .liked-meta {
+            font-size: 0.8em;
+            color: #999;
+        }
+        
+        /* Search View */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            background: white;
+        }
+        
+        .search-box button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            background: white;
+            color: #764ba2;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .filter-chips {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .filter-chip {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .filter-chip.active { background: white; color: #764ba2; }
+        
+        /* Loading/Error */
+        .loading, .error, .empty {
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 1.1em;
+        }
+        
+        .empty-icon { font-size: 60px; margin-bottom: 15px; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .nav-links.mobile-open {
+                display: flex;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🥗</span>
+            <span>Veggie Recipes</span>
+        </div>
+        <div class="nav-links" id="navLinks">
+            <a href="#" class="nav-link active" onclick="showView('swipe', this)">
+                <span class="icon">🔥</span> Swipe
+            </a>
+            <a href="#" class="nav-link" onclick="showView('liked', this)">
+                <span class="icon">❤️</span> Favoriten
+            </a>
+            <a href="#" class="nav-link" onclick="showView('search', this)">
+                <span class="icon">🔍</span> Suche
+            </a>
+        </div>
+    </nav>
+
+    <!-- SWIPE VIEW -->
+    <div id="swipe-view" class="view active">
+        <div class="swipe-container">
+            <div id="swipeLoading" class="loading">Lade Rezepte...</div>
+            <div id="swipeError" class="error" style="display: none;"></div>
+            
+            <div id="recipeContainer" style="display: none;">
+                <div class="recipe-card" id="recipeCard">
+                    <div class="recipe-image" id="recipeImage">
+                        <span class="recipe-placeholder">🍽️</span>
+                    </div>
+                    <div class="recipe-content">
+                        <h2 class="recipe-title" id="recipeTitle"></h2>
+                        <p class="recipe-desc" id="recipeDesc"></p>
+                        <div class="recipe-tags" id="recipeTags"></div>
+                        <div class="recipe-meta">
+                            <div class="meta-item">
+                                <div class="meta-value" id="recipeCalories"></div>
+                                <div class="meta-label">kcal</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-value" id="recipeTime"></div>
+                                <div class="meta-label">Min</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="swipe-buttons">
+                    <button class="swipe-btn dislike" onclick="swipe('dislike')">✕</button>
+                    <button class="swipe-btn superlike" onclick="swipe('superlike')">⭐</button>
+                    <button class="swipe-btn like" onclick="swipe('like')">♥</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIKED VIEW -->
+    <div id="liked-view" class="view">
+        <div id="likedLoading" class="loading">
+            <div class="empty-icon">❤️</div>
+            Lade deine Favoriten...
+        </div>
+        <div id="likedEmpty" class="empty" style="display: none;">
+            <div class="empty-icon">🍽️</div>
+            Noch keine Favoriten!<br>
+            <small>Swipe dich durch die Rezepte und markiere was dir gefällt.</small>
+        </div>
+        <div class="liked-grid" id="likedGrid"></div>
+    </div>
+
+    <!-- SEARCH VIEW -->
+    <div id="search-view" class="view">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Was möchtest du kochen?" onkeypress="if(event.key==='Enter') searchRecipes()">
+            <button onclick="searchRecipes()">Suchen</button>
+        </div>
+        <div class="filter-chips">
+            <button class="filter-chip active" onclick="filterBy('all', this)">Alle</button>
+            <button class="filter-chip" onclick="filterBy('italian', this)">🇮🇹 Italienisch</button>
+            <button class="filter-chip" onclick="filterBy('asian', this)">🥢 Asiatisch</button>
+            <button class="filter-chip" onclick="filterBy('mexican', this)">🌮 Mexikanisch</button>
+            <button class="filter-chip" onclick="filterBy('quick', this)">⚡ Schnell</button>
+        </div>
+        <div id="searchResults" class="liked-grid"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://intervals-others-interviews-except.trycloudflare.com/api';
+        let recipes = [];
+        let currentIndex = 0;
+        let likedRecipes = JSON.parse(localStorage.getItem('likedRecipes') || '[]');
+
+        // View Navigation
+        function showView(viewName, element) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            
+            document.getElementById(viewName + '-view').classList.add('active');
+            if (element) element.classList.add('active');
+            
+            if (viewName === 'liked') loadLikedRecipes();
+            if (viewName === 'swipe' && recipes.length === 0) loadRecipes();
+        }
+
+        // Load Recipes
+        async function loadRecipes() {
+            try {
+                const response = await fetch(`${API_URL}/recipes`);
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.recipes) {
+                    recipes = data.data.recipes;
+                    document.getElementById('swipeLoading').style.display = 'none';
+                    document.getElementById('recipeContainer').style.display = 'block';
+                    showRecipe();
+                }
+            } catch (error) {
+                document.getElementById('swipeLoading').style.display = 'none';
+                document.getElementById('swipeError').style.display = 'block';
+                document.getElementById('swipeError').textContent = 'Fehler beim Laden: ' + error.message;
+            }
+        }
+
+        // Show Recipe
+        function showRecipe() {
+            if (currentIndex >= recipes.length) currentIndex = 0;
+            
+            const recipe = recipes[currentIndex];
+            document.getElementById('recipeTitle').textContent = recipe.title;
+            document.getElementById('recipeDesc').textContent = recipe.description;
+            document.getElementById('recipeCalories').textContent = recipe.nutrition?.calories || 0;
+            document.getElementById('recipeTime').textContent = recipe.time?.total || 0;
+            
+            const tagsContainer = document.getElementById('recipeTags');
+            tagsContainer.innerHTML = '';
+            (recipe.tags || []).slice(0, 3).forEach(tag => {
+                const span = document.createElement('span');
+                span.className = 'tag';
+                span.textContent = tag;
+                tagsContainer.appendChild(span);
+            });
+            
+            // Bild
+            const imgDiv = document.getElementById('recipeImage');
+            if (recipe.images && recipe.images[0] && recipe.images[0].url) {
+                const img = new Image();
+                img.onload = function() {
+                    imgDiv.innerHTML = `<img src="${recipe.images[0].url}" alt="${recipe.title}">`;
+                };
+                img.onerror = function() {
+                    imgDiv.innerHTML = '<span class="recipe-placeholder">🍽️</span>';
+                };
+                img.src = recipe.images[0].url;
+            } else {
+                imgDiv.innerHTML = '<span class="recipe-placeholder">🍽️</span>';
+            }
+        }
+
+        // Swipe Action
+        function swipe(action) {
+            const card = document.getElementById('recipeCard');
+            const recipe = recipes[currentIndex];
+            
+            if (action === 'like' || action === 'superlike') {
+                likedRecipes.push(recipe);
+                localStorage.setItem('likedRecipes', JSON.stringify(likedRecipes));
+                card.style.transform = action === 'like' ? 'translateX(100px) rotate(10deg)' : 'translateY(-50px) scale(1.1)';
+            } else {
+                card.style.transform = 'translateX(-100px) rotate(-10deg)';
+            }
+            
+            setTimeout(() => {
+                card.style.transform = '';
+                currentIndex++;
+                showRecipe();
+            }, 300);
+        }
+
+        // Load Liked Recipes
+        function loadLikedRecipes() {
+            const loading = document.getElementById('likedLoading');
+            const empty = document.getElementById('likedEmpty');
+            const grid = document.getElementById('likedGrid');
+            
+            loading.style.display = 'none';
+            
+            if (likedRecipes.length === 0) {
+                empty.style.display = 'block';
+                grid.innerHTML = '';
+                return;
+            }
+            
+            empty.style.display = 'none';
+            grid.innerHTML = '';
+            
+            likedRecipes.forEach(recipe => {
+                const card = document.createElement('div');
+                card.className = 'liked-card';
+                card.innerHTML = `
+                    <div class="liked-image">🍽️</div>
+                    <div class="liked-info">
+                        <div class="liked-title">${recipe.title}</div>
+                        <div class="liked-meta">${recipe.nutrition?.calories || 0} kcal • ${recipe.time?.total || 0} min</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Search
+        function searchRecipes() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const results = document.getElementById('searchResults');
+            
+            if (!query) {
+                results.innerHTML = '';
+                return;
+            }
+            
+            const filtered = recipes.filter(r => 
+                r.title.toLowerCase().includes(query) ||
+                r.tags.some(t => t.toLowerCase().includes(query))
+            );
+            
+            results.innerHTML = '';
+            filtered.forEach(recipe => {
+                const card = document.createElement('div');
+                card.className = 'liked-card';
+                card.innerHTML = `
+                    <div class="liked-image">🍽️</div>
+                    <div class="liked-info">
+                        <div class="liked-title">${recipe.title}</div>
+                        <div class="liked-meta">${recipe.nutrition?.calories || 0} kcal</div>
+                    </div>
+                `;
+                results.appendChild(card);
+            });
+        }
+
+        // Filter
+        function filterBy(type, element) {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            
+            const results = document.getElementById('searchResults');
+            results.innerHTML = '';
+            
+            let filtered = recipes;
+            if (type !== 'all') {
+                if (type === 'quick') {
+                    filtered = recipes.filter(r => r.time?.total <= 30);
+                } else {
+                    filtered = recipes.filter(r => r.tags.includes(type));
+                }
+            }
+            
+            filtered.forEach(recipe => {
+                const card = document.createElement('div');
+                card.className = 'liked-card';
+                card.innerHTML = `
+                    <div class="liked-image">🍽️</div>
+                    <div class="liked-info">
+                        <div class="liked-title">${recipe.title}</div>
+                        <div class="liked-meta">${recipe.nutrition?.calories || 0} kcal</div>
+                    </div>
+                `;
+                results.appendChild(card);
+            });
+        }
+
+        // Init
+        loadRecipes();
+    </script>
+</body>
+</html>

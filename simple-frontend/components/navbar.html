@@ -1,0 +1,159 @@
+<!-- Navigation Component -->
+<nav class="navbar">
+    <div class="nav-brand">
+        <span class="logo">🥗</span>
+        <span class="brand-text">Veggie Recipes</span>
+    </div>
+    <button class="menu-toggle" onclick="toggleMenu()">
+        <span>☰</span>
+    </button>
+    
+    <div class="nav-links" id="navLinks">
+        <a href="#" class="nav-link active" onclick="showView('swipe')">
+            <span class="icon">🔥</span>
+            <span class="text">Swipe</span>
+        </a>
+        <a href="#" class="nav-link" onclick="showView('liked')">
+            <span class="icon">❤️</span>
+            <span class="text">Favoriten</span>
+            <span class="badge" id="likedCount">0</span>
+        </a>
+        <a href="#" class="nav-link" onclick="showView('search')">
+            <span class="icon">🔍</span>
+            <span class="text">Suche</span>
+        </a>
+        <a href="#" class="nav-link" onclick="showView('mealplan')">
+            <span class="icon">📅</span>
+            <span class="text">Wochenplan</span>
+        </a>
+        <a href="#" class="nav-link" onclick="showView('profile')">
+            <span class="icon">👤</span>
+            <span class="text">Profil</span>
+        </a>
+    </div>
+</nav>
+
+<style>
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.logo {
+    font-size: 1.5em;
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.nav-links {
+    display: flex;
+    gap: 5px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    border-radius: 25px;
+    transition: all 0.3s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.nav-link .icon {
+    font-size: 1.2em;
+}
+
+.badge {
+    background: #ff4757;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    margin-left: 5px;
+}
+
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block;
+    }
+    
+    .nav-links {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        flex-direction: column;
+        padding: 20px;
+        transform: translateY(-100%);
+        opacity: 0;
+        transition: all 0.3s;
+        pointer-events: none;
+    }
+    
+    .nav-links.open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    .nav-link {
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('open');
+}
+
+function showView(viewName) {
+    // Close mobile menu
+    document.getElementById('navLinks').classList.remove('open');
+    
+    // Update active state
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+    });
+    event.target.closest('.nav-link').classList.add('active');
+    
+    // Show view
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const view = document.getElementById(viewName + '-view');
+    if (view) view.classList.add('active');
+}
+</script>
